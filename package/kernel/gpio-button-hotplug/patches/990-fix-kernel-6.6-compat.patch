@@ -1,0 +1,31 @@
+--- a/src/gpio-button-hotplug.c
++++ b/src/gpio-button-hotplug.c
+@@ -387,8 +387,8 @@ static int gpio_keys_button_probe(struct platform_device *pdev,
+ 		return -EINVAL;
+ 	}
+ 
+-	buttons = devm_kmemdup_array(dev, pdata->buttons, pdata->nbuttons, sizeof(struct gpio_keys_button),
+-		       GFP_KERNEL);
++	buttons = devm_kmemdup(dev, pdata->buttons, pdata->nbuttons * sizeof(struct gpio_keys_button),
++		       GFP_KERNEL);
+ 	if (!buttons) {
+ 		dev_err(dev, "no memory for button data\n");
+ 		return -ENOMEM;
+@@ -561,7 +561,7 @@ static void gpio_keys_irq_close(struct gpio_keys_button_dev *bdev)
+ 	}
+ }
+ 
+-static void gpio_keys_remove(struct platform_device *pdev)
++static int gpio_keys_remove(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_button_dev *bdev = platform_get_drvdata(pdev);
+ 
+@@ -571,6 +571,8 @@ static void gpio_keys_remove(struct platform_device *pdev)
+ 		gpio_keys_polled_close(bdev);
+ 	else
+ 		gpio_keys_irq_close(bdev);
++
++	return 0;
+ }
+ 
+ static struct platform_driver gpio_keys_driver = {
